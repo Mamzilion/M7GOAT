@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crown Care - Gamme Capillaire</title>
+    <!-- Tailwind CSS pour un design rapide et propre -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-amber-50/40 text-neutral-800 font-sans">
+
+    <!-- 1. EN-TÊTE / NAVBAR -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wide text-amber-900">👑 Crown Care</h1>
+            <div class="flex items-center gap-6">
+                <!-- Bouton Panier -->
+                <button onclick="toggleCart()" class="relative p-2 text-neutral-600 hover:text-amber-700 cursor-pointer">
+                    <i class="fa-solid fa-basket-shopping text-2xl"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-amber-700 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. BANNIÈRE CONSEIL / SUR-MESURE -->
+    <section class="max-w-6xl mx-auto px-4 mt-6">
+        <div class="bg-gradient-to-r from-amber-800 to-amber-950 text-white rounded-2xl p-6 shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h2 class="text-xl font-bold">Besoin d'un conseil ou d'un devis sur-mesure ?</h2>
+                <p class="text-amber-200 text-sm mt-1">Discutez directement avec notre spécialiste pour trouver la routine parfaite pour vos cheveux.</p>
+            </div>
+            <a href="https://wa.me/237600000000?text=Bonjour%20%21%20J%27ai%20besoin%20d%27un%20conseil%20capillaire%20sur-mesure." target="_blank" class="bg-white text-amber-900 font-semibold px-6 py-3 rounded-xl shadow hover:bg-amber-100 transition flex items-center gap-2">
+                <i class="fa-brands fa-whatsapp text-xl text-green-600"></i> Conseiller WhatsApp
+            </a>
+        </div>
+    </section>
+
+    <!-- 3. ZONE PRINCIPALE : BOUTIQUE & PANIER SIDEBAR -->
+    <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- LE CATALOGUE PRODUITS (Prend 2 colonnes sur grand écran) -->
+        <section class="lg:col-span-2">
+            <h3 class="text-xl font-bold text-neutral-900 mb-6">Notre Gamme Capillaire</h3>
+            
+            <!-- Grid de produits (Simulés en attendant la connexion API) -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Produit 1 -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-neutral-100 p-4">
+                    <div class="h-48 bg-neutral-100 rounded-lg flex items-center justify-center text-neutral-400">
+                        <i class="fa-solid fa-bottle-droplet text-4xl"></i>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-amber-700 bg-amber-100 px-2 py-1 rounded">Huile</span>
+                        <h4 class="text-lg font-bold mt-2">Huile de Croissance & Scellage</h4>
+                        <p class="text-neutral-500 text-sm mt-1 line-clamp-2">Stimule la pousse et retient l'hydratation de vos cheveux crépus et bouclés.</p>
+                        <div class="mt-4 flex justify-between items-center">
+                            <span class="text-lg font-black text-amber-950">5 000 FCFA</span>
+                            <button onclick="addToCart('prod_1', 'Huile de Croissance', 5000)" class="bg-amber-800 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-amber-900 transition cursor-pointer">
+                                + Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Produit 2 -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-neutral-100 p-4">
+                    <div class="h-48 bg-neutral-100 rounded-lg flex items-center justify-center text-neutral-400">
+                        <i class="fa-solid fa-soap text-4xl"></i>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-amber-700 bg-amber-100 px-2 py-1 rounded">Shampoing</span>
+                        <h4 class="text-lg font-bold mt-2">Shampoing Hydratant Douceur</h4>
+                        <p class="text-neutral-500 text-sm mt-1 line-clamp-2">Nettoie en profondeur sans assécher la fibre capillaire. Formule naturelle.</p>
+                        <div class="mt-4 flex justify-between items-center">
+                            <span class="text-lg font-black text-amber-950">4 500 FCFA</span>
+                            <button onclick="addToCart('prod_2', 'Shampoing Hydratant', 4500)" class="bg-amber-800 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-amber-900 transition cursor-pointer">
+                                + Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. LE PANIER SIDEBAR (Prend 1 colonne) -->
+        <section id="cart-sidebar" class="bg-white rounded-xl shadow-sm border border-neutral-100 p-6 h-fit">
+            <h3 class="text-lg font-bold text-neutral-900 border-b border-neutral-100 pb-3 flex items-center gap-2">
+                <i class="fa-solid fa-basket-shopping text-amber-800"></i> Votre Panier
+            </h3>
+            
+            <!-- Liste des éléments du panier -->
+            <div id="cart-items" class="divide-y divide-neutral-100 my-4 min-h-[100px] flex flex-col justify-center text-center text-neutral-400 text-sm">
+                Votre panier est vide.
+            </div>
+
+            <!-- Total -->
+            <div class="border-t border-neutral-100 pt-4">
+                <div class="flex justify-between font-bold text-neutral-900">
+                    <span>Total :</span>
+                    <span id="cart-total">0 FCFA</span>
+                </div>
+                <!-- Bouton Commander -->
+                <button onclick="goToCheckout()" class="w-full mt-4 bg-amber-800 text-white font-semibold py-3 rounded-xl hover:bg-amber-900 transition shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+                    Passer à la commande <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- LOGIQUE JAVASCRIPT DU PANIER -->
+    <script>
+        let cart = [];
+
+        function addToCart(id, name, price) {
+            const existingItem = cart.find(item => item.id === id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id, name, price, quantity: 1 });
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartCount = document.getElementById('cart-count');
+            const cartTotal = document.getElementById('cart-total');
+            
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = 'Votre panier est vide.';
+                cartCount.classList.add('hidden');
+                cartTotal.innerText = '0 FCFA';
+                return;
+            }
+
+            cartCount.classList.remove('hidden');
+            cartCount.innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+            let total = 0;
+            cartItemsContainer.innerHTML = cart.map(item => {
+                total += item.price * item.quantity;
+                return `
+                    <div class="flex justify-between items-center py-3 text-sm">
+                        <div>
+                            <p class="font-medium text-neutral-800">${item.name}</p>
+                            <p class="text-neutral-500 text-xs">${item.price} FCFA x ${item.quantity}</p>
+                        </div>
+                        <span class="font-bold text-neutral-900">${item.price * item.quantity} FCFA</span>
+                    </div>
+                `;
+            }).join('');
+
+            cartTotal.innerText = `${total} FCFA`;
+        }
+
+        function goToCheckout() {
+            if (cart.length === 0) {
+                alert("Votre panier est vide !");
+                return;
+            }
+            // Sauvegarder temporairement le panier pour la page suivante
+            localStorage.setItem('hair_hub_cart', JSON.stringify(cart));
+            
+            // Redirection vers la page de connexion/inscription (Étape suivante)
+            window.location.href = 'auth.html';
+        }
+    </script>
+</body>
+</html>

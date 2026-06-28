@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finaliser ma Commande</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-neutral-100 p-6">
+
+    <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-md mt-6">
+        <h2 class="text-2xl font-bold text-neutral-900 border-b pb-3 mb-6">
+            <i class="fa-solid fa-truck text-amber-800"></i> Détails de la livraison
+        </h2>
+
+        <!-- RÉCAPITULATIF RAPIDE -->
+        <div class="bg-amber-50 p-4 rounded-lg mb-6">
+            <h3 class="font-semibold text-amber-900 mb-2">Récapitulatif de votre panier :</h3>
+            <div id="summary-items" class="text-sm text-neutral-700 space-y-1">
+                <!-- Rempli par le JavaScript -->
+            </div>
+            <div class="border-t border-amber-200 mt-3 pt-2 flex justify-between font-bold text-neutral-900">
+                <span>Total Estimé :</span>
+                <span id="summary-total">0 FCFA</span>
+            </div>
+        </div>
+
+        <!-- FORMULAIRE DE LIVRAISON -->
+        <form id="checkout-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-neutral-700">Votre Nom Complet</label>
+                <input type="text" id="cust-name" required class="w-full p-2.5 border border-neutral-300 rounded-lg mt-1" placeholder="Ex: Marie Noel">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-neutral-700">Ville de livraison</label>
+                    <input type="text" id="cust-city" required class="w-full p-2.5 border border-neutral-300 rounded-lg mt-1" placeholder="Ex: Yaoundé, Douala">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-neutral-700">Quartier / Lieu précis</label>
+                    <input type="text" id="cust-address" required class="w-full p-2.5 border border-neutral-300 rounded-lg mt-1" placeholder="Ex: Bastos, face pharmacie">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-neutral-700">Date souhaitée pour la livraison</label>
+                <input type="date" id="delivery-date" required class="w-full p-2.5 border border-neutral-300 rounded-lg mt-1">
+            </div>
+
+            <!-- BOUTON DE VALIDATION ACTIONNANT LE BACKEND -->
+            <button type="submit" class="w-full mt-6 bg-green-600 text-white font-bold py-3.5 rounded-xl hover:bg-green-700 transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                <i class="fa-brands fa-whatsapp text-xl"></i> Envoyer ma commande sur WhatsApp
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // 1. Récupération des données du panier stockées en mémoire locale (localStorage)
+        const cartData = localStorage.getItem('hair_hub_cart');
+        const cart = cartData ? JSON.parse(cartData) : [];
+
+        // 2. Affichage du récapitulatif sur l'écran
+        const summaryItems = document.getElementById('summary-items');
+        const summaryTotal = document.getElementById('summary-total');
+
+        if (cart.length === 0) {
+            summaryItems.innerHTML = "<p class='text-red-500'>Aucun produit dans le panier.</p>";
+        } else {
+            let total = 0;
+            summaryItems.innerHTML = cart.map(item => {
+                total += item.price * item.quantity;
+                return `<div>• ${item.quantity}x ${item.name} (${item.price} FCFA)</div>`;
+            }).join('');
+            summaryTotal.innerText = `${total} FCFA`;
+        }
+
+        // 3. Soumission du formulaire et appel de notre API Node.js
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (cart.length === 0) {
+                alert("Votre panier est vide !");
+                return;
+            }
+
+            const name = document.getElementById('cust-name').value;
+            const city = document.getElementById('cust-city').value;
+            const address = document.getElementById('cust-address').value;
+            const date = document.getElementById('delivery-date').value;
+
+            // Préparation des données à envoyer au Backend Node.js
+            const orderPayload = {
+                items: cart,
+                customer_name: name,
+                delivery_city: `${city} (${address}) - Date prévue : ${date}`
+            };
+
+            try {
+                // On appelle la route /api/checkout qu'on a codée ensemble dans server.js
+                const response = await fetch('http://localhost:3000/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderPayload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Nettoyage du panier local après commande réussie
+                    localStorage.removeItem('hair_hub_cart');
+                    
+                    // Redirection magique vers le WhatsApp de la boutique avec le message pré-rempli !
+                    window.location.href = result.whatsapp_link;
+                } else {
+                    alert("Erreur lors de la facturation : " + result.message);
+                }
+            } catch (error) {
+                console.error("Erreur d'envoi :", error);
+                alert("Impossible de joindre le serveur. Assure-toi que ton code Node.js tourne bien (node server.js) !");
+            }
+        });
+    </script>
+</body>
+</html>

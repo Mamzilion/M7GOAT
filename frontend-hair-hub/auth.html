@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion / Inscription</title>
+    <!-- Chargement de Supabase et Tailwind -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-neutral-100 p-8">
+
+    <div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md mt-12">
+        <h2 id="auth-title" class="text-2xl font-bold text-center mb-6">Connexion à votre compte</h2>
+
+        <!-- FORMULAIRE DE CONNEXION -->
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium">Email</label>
+                <input type="email" id="login-email" required class="w-full p-2 border rounded-lg mt-1">
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Mot de passe</label>
+                <input type="password" id="login-password" required class="w-full p-2 border rounded-lg mt-1">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded-lg font-semibold hover:bg-blue-700 cursor-pointer">Se connecter</button>
+            <p class="text-sm text-center mt-4">
+                Nouveau client ? <button type="button" onclick="toggleAuth(true)" class="text-blue-600 underline cursor-pointer">Créer un compte</button>
+            </p>
+        </form>
+
+        <!-- FORMULAIRE D'INSCRIPTION (Caché par défaut) -->
+        <form id="register-form" class="space-y-4 hidden">
+            <div>
+                <label class="block text-sm font-medium">Nom complet</label>
+                <input type="text" id="reg-name" required class="w-full p-2 border rounded-lg mt-1">
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Email</label>
+                <input type="email" id="reg-email" required class="w-full p-2 border rounded-lg mt-1">
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Mot de passe</label>
+                <input type="password" id="reg-password" required class="w-full p-2 border rounded-lg mt-1">
+            </div>
+            <button type="submit" class="w-full bg-green-600 text-white p-2 rounded-lg font-semibold hover:bg-green-700 cursor-pointer">S'inscrire</button>
+            <p class="text-sm text-center mt-4">
+                Déjà un compte ? <button type="button" onclick="toggleAuth(false)" class="text-blue-600 underline cursor-pointer">Se connecter</button>
+            </p>
+        </form>
+    </div>
+
+    <script>
+        // ⚠️ REMPLACE CES DEUX LIGNES PAR TES VRAIES CLÉS SUPABASE (les mêmes que dans ton .env)
+        const SUPABASE_URL = "https://nzkkwjzbqnuzkvrnmwkx.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_ffFGPSGEBAT0OW-Wlu404w_SSZyXOki";
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Basculer entre Connexion et Inscription
+        function toggleAuth(showRegister) {
+            document.getElementById('auth-title').innerText = showRegister ? "Créer un compte" : "Connexion à votre compte";
+            document.getElementById('register-form').classList.toggle('hidden', !showRegister);
+            document.getElementById('login-form').classList.toggle('hidden', showRegister);
+        }
+
+        // 1. LOGIQUE D'INSCRIPTION
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const name = document.getElementById('reg-name').value;
+
+            const { data, error } = await supabaseClient.auth.signUp({
+                email,
+                password,
+                options: { data: { full_name: name } }
+            });
+
+            if (error) {
+                alert("Erreur d'inscription : " + error.message);
+            } else {
+                alert("Inscription réussie ! Vous êtes connecté.");
+                // On passe à l'étape suivante : la page de livraison/paiement
+                window.location.href = 'checkout.html';
+            }
+        });
+
+        // 2. LOGIQUE DE CONNEXION
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (error) {
+                alert("Erreur de connexion : " + error.message);
+            } else {
+                // Connexion réussie, redirection vers le formulaire de livraison
+                window.location.href = 'checkout.html';
+            }
+        });
+    </script>
+</body>
+</html>

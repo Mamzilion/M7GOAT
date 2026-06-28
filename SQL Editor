@@ -1,0 +1,41 @@
+-- 1. TABLE PROFILES : Liée à l'authentification native de Supabase
+CREATE TABLE profiles (
+    id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+    full_name TEXT,
+    avatar_url TEXT,
+    hair_type TEXT, -- Ex: Crépus (4C), Bouclés (3B), etc.
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 2. TABLE PRODUCTS : Pour la gamme capillaire
+CREATE TABLE products (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    price NUMERIC NOT NULL,
+    stock_quantity INT DEFAULT 0,
+    image_url TEXT,
+    category TEXT, -- Ex: Shampoing, Huile, Routine complète
+    usage_instructions TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 3. TABLE DIAGNOSTIC_RESULTS : Pour stocker le profil capillaire des abonnés
+CREATE TABLE diagnostic_results (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    hair_porosity TEXT, -- Faible, Moyenne, Forte
+    scalp_type TEXT,    -- Sec, Gras, Pellicules
+    recommended_product_id UUID REFERENCES products(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 4. TABLE ORDERS : Pour la gestion des ventes
+CREATE TABLE orders (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    total_amount NUMERIC NOT NULL,
+    status TEXT DEFAULT 'en_attente', -- en_attente, payé, livré
+    shipping_address TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
