@@ -97,9 +97,14 @@
                 delivery_city: `${city} (${address}) - Date prévue : ${date}`
             };
 
+            // Détection automatique : si on teste sur localhost, on utilise le port 3000, sinon ton URL Vercel de production
+            const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:3000' 
+                : 'https://m7-goat-9w9x.vercel.app';
+
             try {
-                // On appelle la route /api/checkout qu'on a codée ensemble dans server.js
-                const response = await fetch('http://localhost:3000/api/checkout', {
+                // Appel dynamique à la route de facturation
+                const response = await fetch(`${BACKEND_URL}/api/checkout`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(orderPayload)
@@ -118,7 +123,7 @@
                 }
             } catch (error) {
                 console.error("Erreur d'envoi :", error);
-                alert("Impossible de joindre le serveur. Assure-toi que ton code Node.js tourne bien (node server.js) !");
+                alert("Impossible de joindre le serveur. Vérifie que ton backend Vercel tourne ou que ton serveur local est démarré !");
             }
         });
     </script>
